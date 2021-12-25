@@ -24,8 +24,8 @@ class RealtimeSchedulingViewerSVG:
 		self.core_num = json_data["coreNum"]
 		self.makespan = json_data["makespan"]
 
-		self.write_header(self.output_filename, self.makespan, self.core_num * RealtimeSchedulingViewerSVG.HEIGHT)
-		self.draw_lines(self.output_filename, self.makespan, self.core_num * RealtimeSchedulingViewerSVG.HEIGHT)
+		self.write_header(self.makespan, self.core_num * RealtimeSchedulingViewerSVG.HEIGHT)
+		self.draw_lines(self.makespan, self.core_num * RealtimeSchedulingViewerSVG.HEIGHT)
 		"""
 		data["taskSet"].each{|task|
 		  	draw_task(task["coreID"].to_i, task["taskName"], task["startTime"].to_i, task["executionTime"].to_i)
@@ -34,12 +34,12 @@ class RealtimeSchedulingViewerSVG:
 		  #100.times{|i|
 		#	draw_task(rand(10),"task_#{i}", rand(100), rand(500)+10)
 		#  }
-		self.write_script(self.output_filename)
-		self.write_footer(self.output_filename)
+		self.write_script()
+		self.write_footer()
 
 
-	def draw_lines(self, output_filename, height, width):
-		output_file = open(output_filename, "a")
+	def draw_lines(self, height, width):
+		output_file = open(self.output_filename, "a")
 		n = int(width / RealtimeSchedulingViewerSVG.WIDTH_UNIT)
 		for i in range(n):
 			x = i * RealtimeSchedulingViewerSVG.WIDTH_UNIT + RealtimeSchedulingViewerSVG.OFFSET_X
@@ -74,33 +74,37 @@ class RealtimeSchedulingViewerSVG:
 		print "\t\t<text id =\"#{task_name}_#{start_time}-info\" x=\"#{start_time*WIDTH + OFFSET_X}\" y=\"#{core_id*HEIGHT + OFFSET_Y + FONT_SIZE + HEIGHT/2}\" width=\"#{exection_time*WIDTH + OFFSET_X}\" font-family=\"Verdana\" font-size=\"#{FONT_SIZE}\" stroke=\"blue\" opacity=\"0.0\">"
 		#puts  "#{task_name}@#{core_id}:#{start_time}~#{start_time+exection_time}</text>"
 		puts  "#{start_time}~#{start_time+exection_time}@#{core_id}</text>"
-	end
-
-	def print_style
-	print <<EOT
-		<style>
-		.selectable:hover {
-			fill: orange;
-			stroke: orange;
-		}
-		.shown {
-			opacity: 1;
-		}
-		</style>
-	EOT
 	end"""
 
-	def write_header(self, output_filename, height, width):
-		output_file = open(output_filename, "w")
+	def print_style(self):
+		output_file = open(self.output_filename, "a")
+		output_file.write("\t<style>\n")
+		output_file.write("\t.selectable:hover {\n")
+		output_file.write("\t\tfill: orange;\n")
+		output_file.write("\t\tstroke: orange;\n")
+		output_file.write("\t}\n")
+		output_file.write("\t.shown {\n")
+		output_file.write("\t\topacity: 1;\n")
+		output_file.write("\t}\n")
+		output_file.write("\t</style>\n")
+		output_file.close()
+
+	def write_header(self, height, width):
+		output_file = open(self.output_filename, "w")
 		output_file.write("<html>\n")
 		output_file.write("\t<body>\n")
-		#self.print_style()
+		output_file.close()
+
+		self.print_style()
+		
+		output_file = open(self.output_filename, "a")
 		output_file.write("\t<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n")
 		#puts "\t<svg width=\"#{width}\" height=\"#{height}\"  xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">"
 		output_file.write("\t<svg width=\""+str(width)+"\" height=\""+str(height)+"\" viewBox=\"0 0 "+str(height)+" "+str(width)+"\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n")
+		output_file.close()
 
-	def write_script(self, output_filename):
-		output_file = open(output_filename, "a")
+	def write_script(self):
+		output_file = open(self.output_filename, "a")
 		output_file.write("\t\t\t<script>\n")
 		output_file.write("\t\t\tlet selectableElements = document.getElementsByClassName(\"selectable\");\n")
 		output_file.write("\t\t\tArray.from( selectableElements ).forEach(elem => {\n")
@@ -122,8 +126,8 @@ class RealtimeSchedulingViewerSVG:
 		output_file.write("\t\t\t</script>\n")
 		output_file.close()
 
-	def write_footer(self, output_filename):
-		output_file = open(output_filename, "a")
+	def write_footer(self):
+		output_file = open(self.output_filename, "a")
 		output_file.write("\t\t</svg>\n")
 		output_file.write("\t</body>\n")
 		output_file.write("</html>\n")
