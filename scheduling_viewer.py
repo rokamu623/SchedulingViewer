@@ -4,11 +4,11 @@ from sys import argv
 class RealtimeSchedulingViewerSVG:
 	OFFSET_X = 50
 	OFFSET_Y = 10
-	HEIGHT = 150
-	WIDTH  = 10
+	HEIGHT = 75
+	WIDTH  = 5
 	FONT_SIZE = HEIGHT/3
-	WIDTH_UNIT = 1000
-	HEIGHT_UNIT = 500
+	WIDTH_UNIT = 500
+	HEIGHT_UNIT = 250
 
 	color_list = ["AliceBlue","AntiqueWhite","Aqua","Aquamarine","Azure","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGreen","DarkGrey","DarkKhaki","DarkMagenta","DarkOliveGreen","Darkorange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen","Fuchsia","Gainsboro","GhostWhite","Gold","GoldenRod","Gray","Green","GreenYellow","Grey","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYello","LightGray","LightGreen","LightGrey","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSlateGray","LightSlateGrey","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","NavajoWhite","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","SlateGray","SlateGrey","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","White","WhiteSmoke","Yellow","YellowGreen"]
 
@@ -25,7 +25,7 @@ class RealtimeSchedulingViewerSVG:
 		self.makespan = json_data["makespan"]
 
 		self.write_header(self.output_filename, self.makespan, self.core_num * RealtimeSchedulingViewerSVG.HEIGHT)
-		#self.draw_lines(self.makespan.to_i, self.core_num * RealtimeSchedulingViewerSVG.HEIGHT)
+		self.draw_lines(self.output_filename, self.makespan, self.core_num * RealtimeSchedulingViewerSVG.HEIGHT)
 		"""
 		data["taskSet"].each{|task|
 		  	draw_task(task["coreID"].to_i, task["taskName"], task["startTime"].to_i, task["executionTime"].to_i)
@@ -37,26 +37,26 @@ class RealtimeSchedulingViewerSVG:
 		self.write_script(self.output_filename)
 		self.write_footer(self.output_filename)
 
-	"""
-  	def draw_lines(height, width)
-  		n = width / WIDTH_UNIT
-  		n.times{|i|
-  			x = i*WIDTH_UNIT+OFFSET_X
-  			text_x = i*WIDTH_UNIT
 
-  			puts  "\t\t<line id =\"line_#{text_x}\" class=\"selectable\" x1=\"#{x}\" y1=\"0\" x2=\"#{x}\" y2=\"#{height}\" stroke-width=\"15\" stroke=\"black\" />"
-  			print "\t\t<text id =\"line_#{text_x}-info\" x=\"#{x}\" y=\"100\"  font-family=\"Verdana\" font-size=\"#{FONT_SIZE*2}\" stroke=\"blue\">"
-  			puts  "#{i * WIDTH_UNIT / 10}</text>"
-	=begin
+	def draw_lines(self, output_filename, height, width):
+		output_file = open(output_filename, "a")
+		n = int(width / RealtimeSchedulingViewerSVG.WIDTH_UNIT)
+		for i in range(n):
+			x = i * RealtimeSchedulingViewerSVG.WIDTH_UNIT + RealtimeSchedulingViewerSVG.OFFSET_X
+			text_x = i * RealtimeSchedulingViewerSVG.WIDTH_UNIT
+
+			output_file.write("\t\t<line id =\"line_"+str(text_x)+"\" class=\"selectable\" x1=\""+str(x)+"\" y1=\"0\" x2=\""+str(x)+"\" y2=\""+str(height)+"\" stroke-width=\"15\" stroke=\"black\" />\n")
+			output_file.write("\t\t<text id =\"line_"+str(text_x)+"-info\" x=\""+str(x)+"\" y=\"100\"  font-family=\"Verdana\" font-size=\""+str(RealtimeSchedulingViewerSVG.FONT_SIZE * 2)+"\" stroke=\"blue\">\n")
+			output_file.write(str(i * RealtimeSchedulingViewerSVG.WIDTH_UNIT / 10)+"/text>\n")
+		"""
   			(height/HEIGHT_UNIT).times{|y|
   				#print "\t\t<text id =\"line_#{text_x}-info\" x=\"#{x}\" y=\"#{y*HEIGHT_UNIT}\"  font-family=\"Verdana\" font-size=\"#{FONT_SIZE*2}\" stroke=\"blue\" opacity=\"0.0\">"
   				print "\t\t<text id =\"line_#{text_x}-info\" x=\"#{x}\" y=\"#{y*HEIGHT_UNIT}\"  font-family=\"Verdana\" font-size=\"#{FONT_SIZE*2}\" stroke=\"blue\">"
   				puts  "#{i * WIDTH_UNIT / 10}</text>"
   			}
-	=end
-  		}
-  	end
+		"""
 
+	"""
 	def draw_task(core_id, task_name, start_time, exection_time)
 		p @color_hash
 		p @color_list
