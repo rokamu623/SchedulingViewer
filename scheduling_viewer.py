@@ -24,7 +24,7 @@ class RealtimeSchedulingViewerSVG:
 		self.core_num = json_data["coreNum"]
 		self.makespan = json_data["makespan"]
 
-		#self.write_header(self.makespan, self.core_num * RealtimeSchedulingViewerSVG.HEIGHT)
+		self.write_header(self.output_filename, self.makespan, self.core_num * RealtimeSchedulingViewerSVG.HEIGHT)
 		#self.draw_lines(self.makespan.to_i, self.core_num * RealtimeSchedulingViewerSVG.HEIGHT)
 		"""
 		data["taskSet"].each{|task|
@@ -34,7 +34,7 @@ class RealtimeSchedulingViewerSVG:
 		  #100.times{|i|
 		#	draw_task(rand(10),"task_#{i}", rand(100), rand(500)+10)
 		#  }
-		self.print_script(self.output_filename)
+		self.write_script(self.output_filename)
 		self.write_footer(self.output_filename)
 
 	"""
@@ -88,18 +88,18 @@ class RealtimeSchedulingViewerSVG:
 		}
 		</style>
 	EOT
-	end
+	end"""
 
-	def print_header(self, output_filename, height, width):
+	def write_header(self, output_filename, height, width):
 		output_file = open(output_filename, "w")
 		output_file.write("<html>\n")
 		output_file.write("\t<body>\n")
-		print_style
-		puts "\t<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">"
+		#self.print_style()
+		output_file.write("\t<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n")
 		#puts "\t<svg width=\"#{width}\" height=\"#{height}\"  xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">"
-		puts "\t<svg width=\"#{width}\" height=\"#{height}\" viewBox=\"0 0 #{height} #{width}\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">"
-	"""
-	def print_script(self, output_filename):
+		output_file.write("\t<svg width=\""+str(width)+"\" height=\""+str(height)+"\" viewBox=\"0 0 "+str(height)+" "+str(width)+"\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n")
+
+	def write_script(self, output_filename):
 		output_file = open(output_filename, "a")
 		output_file.write("\t\t\t<script>\n")
 		output_file.write("\t\t\tlet selectableElements = document.getElementsByClassName(\"selectable\");\n")
