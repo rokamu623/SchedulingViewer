@@ -1,0 +1,30 @@
+{
+    "coreNum": 80,
+    "makespan":10000,
+    "taskSet": [
+        {
+            "coreID": 1,
+            "taskName": "task_1",
+            "startTime": 0,
+            "executionTime": 30
+        },
+        {
+            "coreID": 2,
+            "taskName": "task_2",
+            "startTime": 30,
+            "executionTime": 30
+        },
+        {
+            "coreID": 3,
+            "taskName": "task_3",
+            "startTime": 60,
+            "executionTime": 30
+        },
+        {
+            "coreID": 3,
+            "taskName": "task_3",
+            "startTime": 100,
+            "executionTime": 30
+        }
+    ]
+}
