@@ -3,9 +3,9 @@ from sys import argv
 
 class SchedulingViewer:
 	OFFSET_X = 0
-	OFFSET_Y = 0
+	OFFSET_Y = 150
 	HEIGHT = 150
-	WIDTH  = 10
+	WIDTH  = 40
 	FONT_SIZE = HEIGHT/3
 	WIDTH_UNIT = 1000
 	HEIGHT_UNIT = 500
@@ -24,8 +24,8 @@ class SchedulingViewer:
 		self.core_num = json_data["coreNum"]
 		self.makespan = json_data["makespan"]
 
-		self.write_header(self.makespan, self.core_num * SchedulingViewer.HEIGHT)
-		self.draw_lines(self.makespan, self.core_num * SchedulingViewer.HEIGHT)
+		self.write_header(self.core_num * SchedulingViewer.HEIGHT, self.makespan * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X)
+		self.draw_lines(self.core_num * SchedulingViewer.HEIGHT, self.makespan * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X)
 		
 		for task in json_data["taskSet"]:
 			self.draw_task(task["coreID"], task["taskName"], task["startTime"], task["executionTime"])
@@ -39,14 +39,14 @@ class SchedulingViewer:
 
 	def draw_lines(self, height, width):
 		output_file = open(self.output_filename, "a")
-		n = int(width / SchedulingViewer.WIDTH_UNIT)
+		n = int(width / SchedulingViewer.WIDTH_UNIT) + 2
 		for i in range(n):
 			x = i * SchedulingViewer.WIDTH_UNIT + SchedulingViewer.OFFSET_X
 			text_x = i * SchedulingViewer.WIDTH_UNIT
 
 			output_file.write("\t\t<line id =\"line_"+str(text_x)+"\" class=\"selectable\" x1=\""+str(x)+"\" y1=\"0\" x2=\""+str(x)+"\" y2=\""+str(height)+"\" stroke-width=\"15\" stroke=\"black\" />\n")
 			output_file.write("\t\t<text id =\"line_"+str(text_x)+"-info\" x=\""+str(x)+"\" y=\"100\"  font-family=\"Verdana\" font-size=\""+str(SchedulingViewer.FONT_SIZE * 2)+"\" stroke=\"blue\">")
-			output_file.write(str(i * SchedulingViewer.WIDTH_UNIT / 10)+"</text>\n")
+			output_file.write(str(i * SchedulingViewer.WIDTH_UNIT / SchedulingViewer.WIDTH)+"</text>\n")
 		"""
   			(height/HEIGHT_UNIT).times{|y|
   				#print "\t\t<text id =\"line_#{text_x}-info\" x=\"#{x}\" y=\"#{y*HEIGHT_UNIT}\"  font-family=\"Verdana\" font-size=\"#{FONT_SIZE*2}\" stroke=\"blue\" opacity=\"0.0\">"
@@ -63,11 +63,14 @@ class SchedulingViewer:
 			self.color_count = (self.color_count + 1) % len(SchedulingViewer.color_list)
 
 		color = self.color_hash[task_name]
+		x = start_time * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X
+		y = core_id * SchedulingViewer.HEIGHT + SchedulingViewer.OFFSET_Y
+		w = exection_time * SchedulingViewer.WIDTH
 
 		#puts  "\t\t<rect id =\"#{task_name}\" class=\"selectable\" x=\"#{start_time*WIDTH + OFFSET_X}\" y=\"#{core_id*HEIGHT + OFFSET_Y}\" width=\"#{exection_time*WIDTH}\" height=\"#{HEIGHT-10}\" stroke=\"black\" fill=\"white\" stroke-width=\"2\" />"
-		output_file.write("\t\t<rect id =\""+str(task_name)+"_"+str(start_time)+"\" class=\"selectable\" x=\""+str(start_time * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X)+"\" y=\""+str(core_id * SchedulingViewer.HEIGHT + SchedulingViewer.OFFSET_Y)+"\" width=\""+str(exection_time * SchedulingViewer.WIDTH)+"\" height=\""+str(SchedulingViewer.HEIGHT - 10)+"\" stroke=\"black\" fill=\""+str(color)+"\" stroke-width=\"2\" />\n")
-		output_file.write("\t\t<text id =\""+str(task_name)+"_"+str(start_time)+"\" class=\"selectable\" x=\""+str(start_time * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X)+"\" y=\""+str(core_id * SchedulingViewer.HEIGHT + SchedulingViewer.OFFSET_Y + SchedulingViewer.FONT_SIZE)+"\"             width=\""+str(exection_time * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X)+"\" font-family=\"Verdana\" font-size=\""+str(SchedulingViewer.FONT_SIZE)+"\"> "+str(task_name)+" </text>\n")
-		output_file.write("\t\t<text id =\""+str(task_name)+"_"+str(start_time)+"-info\" x=\""+str(start_time * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X)+"\" y=\""+str(core_id * SchedulingViewer.HEIGHT + SchedulingViewer.OFFSET_Y + SchedulingViewer.FONT_SIZE + SchedulingViewer.HEIGHT / 2)+"\" width=\""+str(exection_time * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X)+"\" font-family=\"Verdana\" font-size=\""+str(SchedulingViewer.FONT_SIZE)+"\" stroke=\"blue\" opacity=\"0.0\">")
+		output_file.write("\t\t<rect id =\""+str(task_name)+"_"+str(start_time)+"\" class=\"selectable\" x=\""+str(x)+"\" y=\""+str(y)+"\" width=\""+str(w)+"\" height=\""+str(SchedulingViewer.HEIGHT - 10)+"\" stroke=\"black\" fill=\""+str(color)+"\" stroke-width=\"2\" />\n")
+		output_file.write("\t\t<text id =\""+str(task_name)+"_"+str(start_time)+"\" class=\"selectable\" x=\""+str(x)+"\" y=\""+str(y + SchedulingViewer.FONT_SIZE)+"\"             width=\""+str(w + SchedulingViewer.OFFSET_X)+"\" font-family=\"Verdana\" font-size=\""+str(SchedulingViewer.FONT_SIZE)+"\"> "+str(task_name)+" </text>\n")
+		output_file.write("\t\t<text id =\""+str(task_name)+"_"+str(start_time)+"-info\" x=\""+str(x)+"\" y=\""+str(y + SchedulingViewer.FONT_SIZE + SchedulingViewer.HEIGHT / 2)+"\" width=\""+str(w + SchedulingViewer.OFFSET_X)+"\" font-family=\"Verdana\" font-size=\""+str(SchedulingViewer.FONT_SIZE)+"\" stroke=\"blue\" opacity=\"0.0\">")
 		#puts  "#{task_name}@#{core_id}:#{start_time}~#{start_time+exection_time}</text>"
 		output_file.write(str(start_time)+"~"+str(start_time+exection_time)+"@"+str(core_id)+"</text>\n")
 		output_file.close()
