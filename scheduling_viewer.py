@@ -7,7 +7,7 @@ class SchedulingViewer:
 	HEIGHT = 150
 	WIDTH  = 40
 	FONT_SIZE = HEIGHT/3
-	WIDTH_UNIT = 1000
+	X_UNIT = 150
 	HEIGHT_UNIT = 500
 
 	color_list = ["AliceBlue","AntiqueWhite","Aqua","Aquamarine","Azure","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGreen","DarkGrey","DarkKhaki","DarkMagenta","DarkOliveGreen","Darkorange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen","Fuchsia","Gainsboro","GhostWhite","Gold","GoldenRod","Gray","Green","GreenYellow","Grey","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYello","LightGray","LightGreen","LightGrey","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSlateGray","LightSlateGrey","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","NavajoWhite","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","SlateGray","SlateGrey","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","White","WhiteSmoke","Yellow","YellowGreen"]
@@ -17,8 +17,14 @@ class SchedulingViewer:
 		self.output_filename = output_filename
 		self.color_count = 0
 		self.color_hash = {}
-		SchedulingViewer.WIDTH *= ex_rate
 
+		if ex_rate == 0:
+			json_file = open(self.input_filename)
+			json_data = json.load(json_file)
+			ex_rate = 360 / json_data["makespan"]
+			print("ex_rate    : auto_fix")
+
+		SchedulingViewer.WIDTH *= ex_rate
 		print("ex_rate    : "+str(ex_rate))
 
 	def print_svg(self):
@@ -28,7 +34,7 @@ class SchedulingViewer:
 		self.makespan = json_data["makespan"]
 
 		self.write_header(self.core_num * SchedulingViewer.HEIGHT, self.makespan * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X)
-		self.draw_lines(self.core_num * SchedulingViewer.HEIGHT, self.makespan * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X)
+		self.draw_lines(self.core_num * SchedulingViewer.HEIGHT, self.makespan)
 		
 		for task in json_data["taskSet"]:
 			self.draw_task(task["coreID"], task["taskName"], task["startTime"], task["executionTime"])
@@ -42,19 +48,19 @@ class SchedulingViewer:
 
 	def draw_lines(self, height, width):
 		output_file = open(self.output_filename, "a")
-		n = int(width / SchedulingViewer.WIDTH_UNIT) + 2
+		n = int(width / SchedulingViewer.X_UNIT) + 2
 		for i in range(n):
-			x = i * SchedulingViewer.WIDTH_UNIT + SchedulingViewer.OFFSET_X
-			text_x = i * SchedulingViewer.WIDTH_UNIT
+			x = i * SchedulingViewer.X_UNIT * SchedulingViewer.WIDTH + SchedulingViewer.OFFSET_X
+			text_x = i * SchedulingViewer.X_UNIT
 
 			output_file.write("\t\t<line id =\"line_"+str(text_x)+"\" class=\"selectable\" x1=\""+str(x)+"\" y1=\"0\" x2=\""+str(x)+"\" y2=\""+str(height)+"\" stroke-width=\"15\" stroke=\"black\" />\n")
 			output_file.write("\t\t<text id =\"line_"+str(text_x)+"-info\" x=\""+str(x)+"\" y=\"100\"  font-family=\"Verdana\" font-size=\""+str(SchedulingViewer.FONT_SIZE * 2)+"\" stroke=\"blue\">")
-			output_file.write(str(i * SchedulingViewer.WIDTH_UNIT / SchedulingViewer.WIDTH)+"</text>\n")
+			output_file.write(str(i * SchedulingViewer.X_UNIT)+"</text>\n")
 		"""
   			(height/HEIGHT_UNIT).times{|y|
   				#print "\t\t<text id =\"line_#{text_x}-info\" x=\"#{x}\" y=\"#{y*HEIGHT_UNIT}\"  font-family=\"Verdana\" font-size=\"#{FONT_SIZE*2}\" stroke=\"blue\" opacity=\"0.0\">"
   				print "\t\t<text id =\"line_#{text_x}-info\" x=\"#{x}\" y=\"#{y*HEIGHT_UNIT}\"  font-family=\"Verdana\" font-size=\"#{FONT_SIZE*2}\" stroke=\"blue\">"
-  				puts  "#{i * WIDTH_UNIT / 10}</text>"
+  				puts  "#{i * X_UNIT / 10}</text>"
   			}
 		"""
 
@@ -146,10 +152,11 @@ p ARGV
 
 input_file = argv[1] if len(argv) > 1 else "sample.json"
 output_file = argv[2] if len(argv) > 2 else "output.html"
+ex_rate = float(argv[3]) if len(argv) > 3 else 0
 
 print("input_file : "+input_file)
 print("output_file: "+output_file)
-svg_viewer = SchedulingViewer(input_file, output_file, 0.1)
+svg_viewer = SchedulingViewer(input_file, output_file, ex_rate)
 svg_viewer.print_svg()
 
 
