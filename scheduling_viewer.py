@@ -21,7 +21,7 @@ class SchedulingViewer:
 		if ex_rate == 0:
 			json_file = open(self.input_filename)
 			json_data = json.load(json_file)
-			ex_rate = 360 / json_data["makespan"]
+			ex_rate = 96 / json_data["makespan"]
 			print("ex_rate    : auto_fix")
 
 		SchedulingViewer.WIDTH *= ex_rate
